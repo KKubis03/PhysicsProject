@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KKubis Project</title>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        height: 100vh;
+        background-color: #282c34;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      h1 {
+        margin: 20px;
+        font-size: 24px;
+      }
+      canvas {
+        display: block;
+        background-color: #ffffff;
+      }
+      button {
+        margin: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #61dafb;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #21a1f1;
+      }
+      .input-group {
+        margin: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .input-group label {
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+      .input-group input {
+        padding: 5px;
+        font-size: 14px;
+        width: 100px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Pendulum Motion Simulation</h1>
+    <div class="input-group">
+      <label for="lengthInput">Length (px):</label>
+      <input type="number" id="lengthInput" value="200" />
+    </div>
+    <div class="input-group">
+      <label for="angleInput">Initial Angle (degrees):</label>
+      <input type="number" id="angleInput" value="45" />
+    </div>
+    <button id="resetButton">Move pendulum</button>
+    <canvas id="pendulumCanvas"></canvas>
+    <script>
+      const canvas = document.getElementById("pendulumCanvas");
+      const ctx = canvas.getContext("2d");
+      const resetButton = document.getElementById("resetButton");
+      const lengthInput = document.getElementById("lengthInput");
+      const angleInput = document.getElementById("angleInput");
+
+      // size of canvas
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // pendulum parameters
+      const originX = canvas.width / 2;
+      const originY = canvas.height / 4;
+      let length = parseFloat(lengthInput.value); // length of pendulum
+      let angle = (parseFloat(angleInput.value) * Math.PI) / 180; // starting angle in radians
+      let angleVelocity = 0; // angle velocity
+      let angleAcceleration = 0; // angle acceleration
+      const gravity = 0.98; // gravity
+
+      // function to draw a pendulum
+      function drawPendulum() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // calculating position of mass of the pendulum
+        const bobX = originX + length * Math.sin(angle);
+        const bobY = originY + length * Math.cos(angle);
+        // drawing line
+        ctx.beginPath();
+        ctx.moveTo(originX, originY);
+        ctx.lineTo(bobX, bobY);
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // drawing mass of pendulum
+        ctx.beginPath();
+        ctx.arc(bobX, bobY, 20, 0, Math.PI * 2);
+        ctx.fillStyle = "red";
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      // funtion to update parameters of pendulum
+      function updatePendulum() {
+        angleAcceleration = (-gravity / length) * Math.sin(angle); // motion of pendulum
+        angleVelocity += angleAcceleration; // update angle velocity
+        angleVelocity *= 0.99; // air resistance
+        angle += angleVelocity; // angle update
+      }
+
+      // animation loop
+      function animate() {
+        updatePendulum();
+        drawPendulum();
+        requestAnimationFrame(animate);
+      }
+
+      // animation start
+      animate();
+
+      // function to reset animation
+      resetButton.addEventListener("click", () => {
+        length = parseFloat(lengthInput.value); // update length
+        angle = (parseFloat(angleInput.value) * Math.PI) / 180; // update angle in radians
+        angleVelocity = 0; // reset velocity
+      });
+
+      // canvas resizing
+      window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    </script>
+  </body>
+</html>
